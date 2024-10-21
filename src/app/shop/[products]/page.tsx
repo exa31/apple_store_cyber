@@ -121,7 +121,7 @@ export default function Detail({ params: { products } }: { params: { products: s
         <>
             {loading ? <Loading />
                 :
-                <div className="flex flex-col">
+                <div className=" flex flex-col">
                     <div className={`fixed left-0 z-50 p-10 m-10 rounded-e-full bottom-0 text-white bg-slate-500 transition-all duration-300 ${show ? '-translate-x-0' : '-translate-x-[200%]'}`}>
                         Product Success Added to Cart 👍👍👍
                     </div>
@@ -130,14 +130,14 @@ export default function Detail({ params: { products } }: { params: { products: s
                         <p className="text-lg opacity-70">{'>'}</p>
                         <p className="text-lg">{product.name}</p>
                     </div>
-                    <div className="flex container items-center mx-auto px-20 py-10">
-                        <div className="flex flex-col gap-8 me-10">
+                    <div className="flex container lg:flex-row flex-col items-center  mx-auto  sm:px-20 py-10">
+                        <div className="flex lg:flex-col gap-8 ">
                             {images?.map((image, index) => {
                                 return (
                                     <Image
                                         key={index}
                                         onClick={() => setIsActiveImage(image)}
-                                        className={`w-20  ${isActiveImage === image ? 'scale-125 ' : 'opacity-50'}`}
+                                        className={`sm:w-20 w-10  ${isActiveImage === image ? 'scale-125 ' : 'opacity-50'}`}
                                         src={`https://backend-store-apple.vercel.app/images${image}`}
                                         width={100}
                                         height={100}
@@ -145,22 +145,22 @@ export default function Detail({ params: { products } }: { params: { products: s
                                 )
                             })}
                         </div>
-                        <div className="">
+                        <div className="sm:mt-0 mt-10">
                             <Image
                                 src={`https://backend-store-apple.vercel.app/images${isActiveImage}`}
                                 width={410}
-                                className="object-cover w-96 h-[500px]"
+                                className="object-cover sm:w-full    sm:h-[500px]"
                                 height={516}
                                 alt={product.name} />
                         </div>
-                        <div className="flex-1 ms-10">
-                            <h1 className="text-5xl font-bold">{product.name}</h1>
+                        <div className="flex-1 sm:ms-10">
+                            <h1 className="sm:text-5xl text-3xl font-bold">{product.name}</h1>
                             <div className="flex">
-                                <p className="text-2xl font-semibold mt-4">{formatRupiah(product.price)}</p>
+                                <p className="sm:text-2xl font-semibold mt-4">{formatRupiah(product.price)}</p>
                                 <p className="text-lg opacity-50 ms-4 line-through font-semibold mt-4">{formatRupiah(product.price + 1000000)}</p>
                             </div>
                             <p className="text-base text-justify mt-4">{product.description}</p>
-                            <div className="flex mt-10 w-[26rem] gap-8">
+                            <div className="flex sm:flex-row flex-col mt-10 sm:w-[26rem] gap-8">
                                 <button
                                     onClick={handleLike}
                                     className="block rounded-lg w-full px-4 py-2 text-sm font-medium transition hover:scale-105 text-black border-2 border-black"
@@ -171,7 +171,7 @@ export default function Detail({ params: { products } }: { params: { products: s
                                     onClick={handleAddCart}
                                     className="block rounded-lg w-full bg-black p-4 text-sm font-medium transition hover:scale-105 text-white"
                                 >
-                                    Add to cart
+                                    Add to Cart
                                 </button>
                             </div>
                         </div>
@@ -180,7 +180,7 @@ export default function Detail({ params: { products } }: { params: { products: s
                         <ReviewSec />
                     </div>
                     <div className="container mx-auto">
-                        <AnotherProducts favorite={favorite} setFavorite={setFavorite} category={product.category?.name as string} />
+                        <AnotherProducts id={product._id} favorite={favorite} setFavorite={setFavorite} category={product.category?.name as string} />
                     </div>
                 </div>
             }

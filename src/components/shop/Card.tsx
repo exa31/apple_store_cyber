@@ -114,13 +114,9 @@ export default function CardShop({ product, setShow, favorite, setFavorite }: Ca
                     height={500}
                     className="h-96 md:w-96 w-72 object-contain transition duration-500 group-hover:scale-105 p-0 overflow-hidden sm:h-72"
                 />
-
                 <div className="relative p-6 text-center">
-
                     <h3 className="mt-4 text-lg font-medium text-gray-900">{product.name}</h3>
-
                     <p className="mt-1.5 text-2xl font-semibold text-gray-700">{formatRupiah(product.price)}</p>
-
                     <div className="mt-4 flex flex-col gap-5 justify-center">
                         <Link href={`/shop/${product._id}`}
                             className="block rounded-lg w-full bg-transparent p-4 text-sm font-medium transition hover:scale-105 text-black border-2 border-black"

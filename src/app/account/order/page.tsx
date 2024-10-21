@@ -1,5 +1,6 @@
 'use client'
 
+import Spinner from "@/components/spinner";
 import { formatRupiah } from "@/helper";
 import Link from "next/link";
 import { useEffect, useState } from "react"
@@ -21,31 +22,37 @@ interface Order {
 export default function Order() {
 
     const [order, setOrder] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch('/api/order')
             .then(response => response.json())
-            .then(data => setOrder(data));
+            .then((data) => {
+                setOrder(data);
+                setLoading(false);
+            });
     }, []);
 
     return (
-        <div className="flex flex-col w-full">
-            <div className="py-8 border-2">
-                <h1 className="text-center text-4xl font-bold">Order</h1>
-            </div>
-            {order.length === 0 ?
-                <div className="text-center text-xl font-medium mt-10">
-                    <div >
-                        Maaf belum ada order yang dibuat
+        <>
+
+
+            {loading ? <div className="mx-auto mt-52">
+                <Spinner />
+            </div> :
+
+                order.length === 0 ?
+                    <div className="text-center text-xl font-medium mt-10">
+                        <div >
+                            Maaf belum ada order yang dibuat
+                        </div>
+                        <div className="flex justify-center m-4">
+                            <Link href='/shop' className="px-8 py-4 rounded-xl bg-black text-white ">Shop</Link>
+                        </div>
                     </div>
-                    <div className="flex justify-center m-4">
-                        <Link href='/shop' className="px-8 py-4 rounded-xl bg-black text-white ">Shop</Link>
-                    </div>
-                </div>
-                :
-                <div>
-                    <div className="max-h-screen mx-10 overflow-x-auto">
-                        <table className="table text-center">
+                    :
+                    <div className="max-h-screen  sm:w-full mx-10 overflow-x-auto">
+                        <table className="table overflow-auto text-center">
                             <thead className="text-lg py-4 border-b-2 font-semibold">
                                 <tr>
                                     <th>
@@ -97,8 +104,7 @@ export default function Order() {
                             </tbody>
                         </table>
                     </div>
-                </div>
             }
-        </div>
+        </>
     )
 };

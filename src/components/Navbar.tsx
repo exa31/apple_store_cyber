@@ -66,14 +66,14 @@ export default function Navbar() {
 
     return (
         <header className="bg-white border-b border-gray-300 shadow-lg">
-            <div className=" max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className=" max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-center">
                     <div className="md:flex md:items-center md:gap-12">
                         <a className="block text-teal-600" href="#">
                             <h1 className="md:text-3xl text-lg font-bold text-black">cyber</h1>
                         </a>
                     </div>
-                    <div className="sm:w-1/3 w-[100px]">
+                    <div className="sm:w-1/4 w-[100px]">
                         <form onSubmit={handleSearch} >
                             <label htmlFor="search" className="text-black gap-2 items-center rounded-lg bg-gray-100 p-2 mx-2 md:mx-8 flex">
                                 <button type="submit"><HiMagnifyingGlass className="text-xl" /></button>
@@ -81,12 +81,12 @@ export default function Navbar() {
                             </label>
                         </form>
                     </div>
-                    <nav className={`flex md:items-start items-center gap-6 text-sm ${active ? 'absolute sm:static z-40 sm:mt-0 mt-16 top-0 bg-white sm:h-auto h-screen right-0 w-60 sm:w-max flex-col transition-all duration-200 md:flex-row' : 'absolute sm:static z-40 sm:mt-0 mt-16 top-0 bg-white sm:h-auto h-screen right-0 w-0 sm:w-max overflow-hidden flex-col transition-all duration-200 md:flex-row'}`}>
+                    <nav className={`flex  items-center gap-6 text-sm  ${active ? 'absolute sm:static z-40 sm:mt-0 mt-16 top-0 bg-white sm:h-auto h-screen right-0 w-60 sm:w-full flex-col transition-all duration-200 md:flex-row' : 'absolute sm:static z-40 sm:mt-0 mt-16 top-0 bg-white sm:h-auto h-screen right-0 w-0 sm:w-max overflow-hidden flex-col transition-all duration-200 sm:flex-row'}`}>
                         <p>
-                            <Link className={` transition hover:text-black ${pathname === '/' ? 'text-black cursor-default' : 'text-gray-500'}`} href="/"> Home </Link>
+                            <Link className={`font-bold transition hover:text-black ${pathname === '/' ? 'text-black cursor-default' : 'text-gray-500'}`} href="/"> Home </Link>
                         </p>
                         <p>
-                            <Link className={` transition hover:text-black ${pathname === '/shop' ? 'text-black cursor-default' : 'text-gray-500'}`} href="/shop"> Shop </Link>
+                            <Link className={`font-bold transition hover:text-black ${pathname === '/shop' ? 'text-black cursor-default' : 'text-gray-500'}`} href="/shop"> Shop </Link>
                         </p>
                     </nav>
                     <Link href={'/likes'}>

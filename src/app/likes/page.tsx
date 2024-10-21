@@ -26,7 +26,7 @@ export default function Likes() {
     }, [])
 
     const removeFavorite = (id: string) => {
-        axios.post('api/like', {
+        axios.post('/api/like', {
             productId: id
         }).then(res => {
             if (res.status === 200) {

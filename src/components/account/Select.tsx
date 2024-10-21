@@ -24,7 +24,7 @@ export default function Select({ name, handleName, handleSelect, label, options,
     return (
         <div className="form-control">
             <label className="label">
-                <span className="label-text text-base">{label}</span>
+                <span className="">{label}</span>
             </label>
             <select onChange={(e) => handleChange(name, e.target.value)} defaultValue={`Pilih ${label}`} name={name} disabled={options.length === 0} className="input input-bordered" >
                 <option disabled>Pilih {label}</option>

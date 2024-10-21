@@ -52,6 +52,10 @@ export default function EditAddress({ params: { id } }: { params: { id: string }
         kelurahan: ''
     });
     const [address, setAddress] = useState({
+        provinsi: '',
+        kabupaten: '',
+        kecamatan: '',
+        kelurahan: '',
     });
     const [prevAddress, setPrevAddress] = useState({
         provinsi: '',
@@ -137,6 +141,8 @@ export default function EditAddress({ params: { id } }: { params: { id: string }
             error.name = true;
         }
 
+        if (address.provinsi !== '') { }
+
         if (detail.length < 3) {
             error.detail = true;
         }
@@ -150,7 +156,7 @@ export default function EditAddress({ params: { id } }: { params: { id: string }
             axios.put(`/api/delivery-address/${id}`, payload).then(() => {
                 router.push('/account/address');
             }).catch((err) => {
-                console.log(err);
+
                 alert('Failed to update address');
             }).finally(() => {
                 setSubmit(false);
@@ -159,12 +165,12 @@ export default function EditAddress({ params: { id } }: { params: { id: string }
     }
     return (
         <div className="p-3 w-full rounded-xl">
-            <div className="py-8 border-2">
-                <h1 className="text-center text-4xl font-bold">Create Address</h1>
+            <div className="py-8 mb-4 border-2">
+                <h1 className="text-center text-4xl font-bold">Edit Address</h1>
             </div>
             <h4 className="text-lg font-semibold">Alamat Sebelumnya</h4>
             <p>{`${prevAddress.provinsi}, ${prevAddress.kabupaten}, ${prevAddress.kecamatan}, ${prevAddress.kelurahan}, ${prevAddress.detail}`}</p>
-            <form className="mt-10 grid grid-cols-2 gap-8" onSubmit={handleSubmit}>
+            <form className="mt-10 grid sm:grid-cols-2 gap-8" onSubmit={handleSubmit}>
                 <div className="form-control">
                     <label className="label">
                         <span className="label-text">Name</span>

@@ -50,7 +50,6 @@ export default function CreateAlamat() {
 
     useEffect(() => {
         getProvinsi().then((data) => {
-            console.log(data);
             setData((prevData) => ({
                 ...prevData,
                 provinsi: data
@@ -92,6 +91,26 @@ export default function CreateAlamat() {
     }, [id.kecamatan]);
 
     function handleName(label: string, name: string) {
+        if (label === 'provinsi' && address.kabupaten !== '') {
+            setAddress({
+                ...address,
+                kabupaten: '',
+                kecamatan: '',
+                kelurahan: ''
+            });
+            setId({
+                ...id,
+                kabupaten: '',
+                kecamatan: '',
+                kelurahan: ''
+            });
+            setData({
+                ...data,
+                kabupaten: [],
+                kecamatan: [],
+                kelurahan: []
+            })
+        }
         setAddress({
             ...address,
             [label]: name
@@ -152,7 +171,7 @@ export default function CreateAlamat() {
             <div className="py-8 border-2">
                 <h1 className="text-center text-4xl font-bold">Create Address</h1>
             </div>
-            <form className="mt-10 grid grid-cols-2 gap-8" onSubmit={handleSubmit}>
+            <form className="mt-10 grid sm:grid-cols-2 gap-8" onSubmit={handleSubmit}>
                 <div className="form-control">
                     <label className="label">
                         <span className="label-text">Name</span>
@@ -170,9 +189,9 @@ export default function CreateAlamat() {
                 </div>
                 <div className="flex-row gap-5 mt-6 form-control">
                     <button onClick={() => router.back()} className="block rounded-lg  bg-transparent py-4 px-8 text-sm font-medium transition hover:scale-105 border-2 border-black text-black">Back</button>
-                    {id.kelurahan &&
-                        <button disabled={submit} type="submit" className="block rounded-lg  bg-black px-8 text-sm font-medium transition hover:scale-105 py-4 text-white">Save</button>
-                    }
+
+                    <button disabled={submit || id.kelurahan === ''} type="submit" className={`block rounded-lg ${id.kelurahan === '' && "btn-disabled btn"}  bg-black px-8 text-sm font-medium transition hover:scale-105 py-4 text-white`}>Save</button>
+
                 </div>
             </form>
         </div>

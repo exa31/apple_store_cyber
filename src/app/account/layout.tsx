@@ -11,15 +11,15 @@ export default function LayoutProfile({
 }) {
     const pathname = usePathname();
     return (
-        <div className="flex mt-14 container min-h-screen w-full mx-auto">
-            {!pathname.startsWith('/account/order/') &&
+        <div className="flex mt-14 container min-h-screen mx-auto">
+            {!pathname.startsWith('/account/order/') && !pathname.startsWith('/account/address/') &&
                 <div className="border">
-                    <div className="w-28 rounded-full mx-auto mt-10">
+                    <div className="w-14 rounded-full mx-auto mt-10">
                         <Image
                             alt="Tailwind CSS Navbar component"
                             src="/images/avatar.png"
                             width={500}
-                            className="rounded-full  w-full"
+                            className="rounded-full  w-24"
                             height={500} />
                     </div>
                     <div className="flex mt-10 items-center flex-col">
@@ -29,9 +29,8 @@ export default function LayoutProfile({
                     </div>
                 </div>
             }
-            <div className="border w-full">
-                {children}
-            </div>
+
+            {children}
         </div>
     )
 };

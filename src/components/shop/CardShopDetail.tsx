@@ -96,7 +96,7 @@ export default function CardShopDetail({ product, setShow, favorite, setFavorite
 
     return (
         <>
-            <div className="group relative block overflow-hidden rounded-lg bg-slate-100">
+            <div className="group  block overflow-hidden rounded-lg bg-slate-100">
                 <button
                     className="z-10 w-full rounded-full text-gray-900 transition hover:text-gray-900/75"
                 >
@@ -112,16 +112,13 @@ export default function CardShopDetail({ product, setShow, favorite, setFavorite
                     width={500}
                     priority={true}
                     height={500}
-                    className="h-96 w-96 object-contain transition duration-500 group-hover:scale-105 p-0 overflow-hidden sm:h-72"
+                    className="h-96 md:w-96 w-72 object-contain transition duration-500 group-hover:scale-105 p-0 overflow-hidden sm:h-72"
                 />
 
                 <div className="relative p-6 text-center">
-
                     <h3 className="mt-4 text-lg font-medium text-gray-900">{product.name}</h3>
-
                     <p className="mt-1.5 text-2xl font-semibold text-gray-700">{formatRupiah(product.price)}</p>
-
-                    <div className="mt-4 flex flex-col gap-5 justify-center">
+                    <div className="mt-4">
                         <Link href={`/shop/${product._id}`}
                             className="block rounded-lg w-full bg-black p-4 text-sm font-medium transition hover:scale-105 text-white border-2 border-black"
                         >
