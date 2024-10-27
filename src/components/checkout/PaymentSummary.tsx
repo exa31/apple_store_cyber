@@ -42,7 +42,7 @@ export default function PaymentSummary({ setCart, subTotal, addressId, setAddres
                 total,
                 deliveryAddress: addressId
             })
-            const token = checkout.data
+            const token = checkout.data.token
             setDiscount(0)
             setAddress('')
             setCart([])
