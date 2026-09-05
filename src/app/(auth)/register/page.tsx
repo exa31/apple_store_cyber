@@ -1,155 +1,180 @@
-'use client'
+"use client";
+
 import { isValidEmail } from "@/helper";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-
-interface Error {
-    name?: boolean;
-    email?: boolean;
-    password?: boolean;
-    confirmPassword?: boolean;
-}
+import Image from "next/image";
+import { SiApple } from "react-icons/si";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function Register() {
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const router = useRouter();
 
-    const [error, setError] = useState<Error>({});
-    const [axiosError, setAxiosError] = useState<boolean>(false);
-    const [submitting, setSubmitting] = useState<boolean>(false);
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage("");
 
-    const router = useRouter();
+    const form = new FormData(e.currentTarget);
+    const name = (form.get("name") as string)?.trim();
+    const email = (form.get("email") as string)?.trim();
+    const password = form.get("password") as string;
+    const confirmPassword = form.get("confirmPassword") as string;
 
-    const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSubmitting(true);
-        setAxiosError(false);
-        const form = new FormData(e.currentTarget);
-        const name = form.get('name') as string;
-        const email = form.get('email') as string;
-        const password = form.get('password') as string;
-        const confirmPassword = form.get('confirm password') as string;
-
-        let errors: Error = {};
-
-        if (password !== confirmPassword) {
-            errors = { ...errors, confirmPassword: true };
-        }
-
-        if (password.length < 6) {
-            errors = { ...errors, password: true };
-        }
-
-        if (isValidEmail(email) === false) {
-            errors = { ...errors, email: true };
-        }
-
-        if (email === '') {
-            errors = { ...errors, email: true };
-        }
-
-        if (name === '') {
-            errors = { ...errors, name: true };
-        }
-
-        if (name === '' && email === '' && password === '' && confirmPassword === '') {
-            errors = { ...errors, name: true, email: true, password: true, confirmPassword: true };
-        }
-
-        if (name.length < 3) {
-            errors = {
-                ...errors, name: true
-            }
-        }
-
-        if (Object.keys(errors).length > 0) {
-            setSubmitting(false);
-            setAxiosError(false);
-            setError(errors);
-            return;
-        } else {
-            setError({});
-            axios.post('/api/auth/register', {
-                name,
-                email,
-                password
-            }).then((data) => {
-                router.push('/login');
-            }).catch((err) => {
-                if (axios.isAxiosError(err)) {
-                    setAxiosError(true);
-                }
-                alert('Register failed');
-            }).finally(() => {
-                setSubmitting(false);
-            });
-        }
-
-
+    if (!name || name.length < 2) {
+      setErrorMessage("Please enter a valid full name.");
+      return;
     }
 
-    return (
-        <section className="bg-white dark:bg-gray-900">
-            <div className="container flex items-center justify-center min-h-screen px-6 mx-auto">
-                <form onSubmit={handleRegister} className="w-full max-w-md">
-                    <div className="flex items-center justify-center mt-6">
-                        <p className="w-1/3 pb-4 font-medium text-center text-gray-800 capitalize border-b-2 border-blue-500 dark:border-blue-400 dark:text-white">
-                            sign up
-                        </p>
-                    </div>
+    if (!email || !isValidEmail(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
 
-                    <div className="relative flex items-center mt-8">
-                        <span className="absolute">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </span>
-                        <input type="text" name="name" className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="name" />
-                    </div>
-                    {error.name && <p className="text-red-500 mt-2">Name is required</p>}
-                    <div className="relative flex items-center mt-4">
-                        <span className="absolute">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                        </span>
-                        <input type="email" name="email" className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Email address" />
-                    </div>
-                    {axiosError && <p className="text-red-500 mt-2">Email is already taken</p>}
-                    {error.email && <p className="text-red-500 mt-2">Email is required</p>}
-                    <div className="relative flex items-center mt-4">
-                        <span className="absolute">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </span>
-                        <input type="password" name="password" className="block w-full px-10 py-3 text-gray-700 bg-white border rounded-lg dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Password" />
-                    </div>
-                    {error.password && <p className="text-red-500 mt-2">Password is required</p>}
-                    <div className="relative flex items-center mt-4">
-                        <span className="absolute">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </span>
-                        <input type="password" name="confirm password" className="block w-full px-10 py-3 text-gray-700 bg-white border rounded-lg dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Confirm Password" />
-                    </div>
-                    {error.confirmPassword && <p className="text-red-500 mt-2">Password is not match</p>}
-                    <div className="mt-6">
-                        <button className={`w-full mb-6 px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50 ${submitting && 'btn-disabled'}`}>
-                            Sign Up
-                        </button>
-                        <button onClick={() => router.back()} className={`w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50 ${submitting && 'btn-disabled'}`}>
-                            Back
-                        </button>
-                        <div className="mt-6 text-center ">
-                            <Link href="/login" className="text-sm text-blue-500 hover:underline dark:text-blue-400">
-                                Already have an account?
-                            </Link>
-                        </div>
-                    </div>
-                </form>
+    if (!password || password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await axios.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+
+      if (res.status === 200 || res.status === 201) {
+        router.push("/login?registered=true");
+      }
+    } catch (err: any) {
+      setErrorMessage(
+        err.response?.data?.message || "Registration failed. Email may already be in use."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#fbfbfd]">
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-neutral-200/80 shadow-xl space-y-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-black transition-colors"
+        >
+          <FiArrowLeft /> Back to Store
+        </Link>
+
+        <div className="text-center space-y-2">
+          <div className="w-14 h-14 rounded-2xl p-[1.5px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 mx-auto shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center">
+            <div className="w-full h-full bg-[#080b11] rounded-[14px] flex items-center justify-center p-2">
+              <Image
+                src="/logo.png"
+                alt="Cyber Apple Logo"
+                width={34}
+                height={34}
+                className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(6,182,212,0.85)]"
+                priority
+              />
             </div>
-        </section>
-    )
-};
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-neutral-900">
+            Create Your Cyber Apple ID
+          </h1>
+          <p className="text-xs text-neutral-500">
+            One Cyber ID is all you need to access all Cyber Store services
+          </p>
+        </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 text-center font-medium">
+            {errorMessage}
+          </div>
+        )}
+
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="e.g. Steve Jobs"
+              className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="name@example.com"
+              className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              required
+              placeholder="Minimum 6 characters"
+              className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              required
+              placeholder="Re-enter password"
+              className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-3.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all duration-200 shadow-md hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50"
+          >
+            {submitting ? "Creating account..." : "Continue"}
+          </button>
+        </form>
+
+        <div className="text-center pt-2">
+          <p className="text-xs text-neutral-500">
+            Already have an Apple ID?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-blue-600 hover:underline"
+            >
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

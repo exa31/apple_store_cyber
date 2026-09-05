@@ -1,99 +1,191 @@
-'use client'
-import Spinner from "@/components/spinner";
+"use client";
+
+import { AddressListSkeleton } from "@/components/ui/Skeleton";
+import { toast } from "@/components/ui/Toast";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { FiEdit2, FiMapPin, FiPlus, FiTrash2, FiUser } from "react-icons/fi";
 
 interface Address {
-    name: string,
-    kelurahan: string,
-    kecamatan: string,
-    kabupaten: string,
-    provinsi: string,
-    detail: string,
-    _id: string
+  name: string;
+  kelurahan: string;
+  kecamatan: string;
+  kabupaten: string;
+  provinsi: string;
+  detail: string;
+  _id: string;
 }
 
-export default function Address() {
+export default function AddressPage() {
+  const [address, setAddress] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    const [address, setAddress] = useState<Address[]>([]);
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        const fetchAddress = async () => {
-            try {
-                const res = await fetch('/api/delivery-address');
-                if (!res.ok) {
-                    throw new Error()
-                }
-                const data = await res.json();
-                if (data.status === 404) {
-                    setLoading(false)
-                    return
-                }
-                setLoading(false)
-                setAddress(data)
-            } catch (error) {
-                console.log(error)
-            }
+  useEffect(() => {
+    const fetchAddress = async () => {
+      try {
+        const res = await fetch("/api/delivery-address");
+        if (!res.ok) {
+          throw new Error("Failed to fetch address");
         }
-        fetchAddress()
-    }, []);
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data?.data || data?.deliveryAddresses || []);
+        setAddress(list);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAddress();
+  }, []);
 
-    function handleDelete(id: string) {
-        axios.delete(`/api/delivery-address/${id}`).then((res) => {
-            const newAddress = address.filter((data) => {
-                return data._id !== id
-            })
-            setAddress(newAddress)
-        }).catch((err) => new Error(err))
+  function confirmDelete(id: string, name: string) {
+    toast.alert({
+      title: "Hapus Alamat Pengiriman?",
+      message: `Apakah Anda yakin ingin menghapus alamat "${name}"? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: "Hapus Alamat",
+      type: "warning",
+      onConfirm: () => executeDelete(id),
+    });
+  }
+
+  async function executeDelete(id: string) {
+    setDeletingId(id);
+    try {
+      await axios.delete(`/api/delivery-address/${id}`);
+      setAddress((prev) => prev.filter((item) => item._id !== id));
+      toast.success(
+        "Alamat Terhapus",
+        "Alamat pengiriman telah berhasil dihapus dari akun Anda."
+      );
+    } catch {
+      toast.error(
+        "Gagal Menghapus",
+        "Terjadi kendala saat menghapus alamat. Silakan coba kembali."
+      );
+    } finally {
+      setDeletingId(null);
     }
-    return (
-        <>
-            <>
-                {loading ? <div className="mx-auto mt-52">
-                    <Spinner />
-                </div> :
-                    address.length === 0 ?
-                        <div className="text-center text-xl font-medium mt-10">
-                            <div >
-                                Maaf belum ada alamat yang dibuat
-                            </div>
-                            <div className="flex justify-center m-4">
-                                <Link href='/account/address/create-alamat' className="px-8 py-4 rounded-xl bg-black text-white ">Create</Link>
-                            </div>
-                        </div>
-                        :
-                        <div className="max-h-screen  sm:w-full mx-10 overflow-x-auto">
-                            <table className="table overflow-auto text-center">
-                                <thead className="text-lg py-4 border-b-2 font-semibold">
-                                    <tr>
-                                        <th>
-                                            Name
-                                        </th>
-                                        <th>
-                                            Alamat
-                                        </th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                {address.map((data, index) =>
-                                    <tbody className="sm:text-lg text-sm py-4" key={index}>
-                                        <tr>
-                                            <td>{data.name}</td>
-                                            <td> Desa {data.kelurahan}, Kecamatan {data.kecamatan}, {data.kabupaten}, {data.provinsi}, {data.detail}</td>
-                                            <td><Link className="btn btn-sm rounded-2xl btn-warning" href={`/account/address/edit-alamat/${data._id}`}>Edit</Link></td>
-                                            <td><button className="btn btn-sm rounded-2xl btn-warning" onClick={() => handleDelete(data._id)}>Delete</button></td>
-                                        </tr>
-                                    </tbody>
-                                )}
-                            </table>
-                            <div className="flex justify-start  m-4">
-                                <Link href='/account/address/create-alamat' className=" rounded-2xl text-white btn btn-primary">Create alamat</Link>
-                            </div>
-                        </div >
-                }
-            </>
-        </>
-    )
-};
+  }
+
+  if (loading) {
+    return <AddressListSkeleton />;
+  }
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-neutral-200">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            Daftar Alamat Pengiriman
+          </h1>
+          <p className="text-xs text-neutral-500 mt-1">
+            Kelola alamat tujuan untuk pengiriman pesanan Apple Anda
+          </p>
+        </div>
+        <Link
+          href="/account/address/create-alamat"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-95 shrink-0"
+        >
+          <FiPlus className="text-sm" />
+          <span>Tambah Alamat Baru</span>
+        </Link>
+      </div>
+
+      {/* Empty State */}
+      {address.length === 0 ? (
+        <div className="rounded-3xl bg-neutral-50/80 border border-neutral-200/80 p-10 sm:p-14 text-center space-y-4 max-w-lg mx-auto my-8">
+          <div className="w-14 h-14 rounded-full bg-neutral-200/60 flex items-center justify-center mx-auto text-neutral-500 text-2xl">
+            <FiMapPin />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-neutral-900">
+              Belum Ada Alamat Tersimpan
+            </h3>
+            <p className="text-xs text-neutral-500 mt-1.5 leading-relaxed">
+              Tambahkan alamat pertama Anda untuk mempermudah dan mempercepat proses checkout pesanan di Cyber Store.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Link
+              href="/account/address/create-alamat"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold shadow-sm transition-all"
+            >
+              <FiPlus /> Tambah Alamat Sekarang
+            </Link>
+          </div>
+        </div>
+      ) : (
+        /* Address Card Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {address.map((data, idx) => (
+            <div
+              key={data._id}
+              className="rounded-3xl bg-white p-6 border border-neutral-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+            >
+              <div className="space-y-3">
+                {/* Card Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 text-xs font-bold">
+                      <FiUser />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 leading-tight">
+                        {data.name}
+                      </h3>
+                      <span className="text-[10px] font-mono text-neutral-400">
+                        Alamat #{idx + 1}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600">
+                    <FiMapPin className="text-[10px]" /> Tersimpan
+                  </span>
+                </div>
+
+                {/* Address Body */}
+                <div className="space-y-1.5 pt-1 text-xs text-neutral-600 leading-relaxed">
+                  <p className="font-semibold text-neutral-800">
+                    Desa/Kel. {data.kelurahan}, Kec. {data.kecamatan}
+                  </p>
+                  <p className="text-neutral-500">
+                    {data.kabupaten}, Provinsi {data.provinsi}
+                  </p>
+                  <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-100 text-neutral-700 text-[11px] font-medium mt-2">
+                    <span className="text-neutral-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">
+                      Detail Patokan:
+                    </span>
+                    {data.detail}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pt-3 border-t border-neutral-100">
+                <Link
+                  href={`/account/address/edit-alamat/${data._id}`}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-full border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-semibold transition-colors shadow-sm"
+                >
+                  <FiEdit2 className="text-xs" />
+                  <span>Edit Alamat</span>
+                </Link>
+                <button
+                  onClick={() => confirmDelete(data._id, data.name)}
+                  disabled={deletingId === data._id}
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold transition-colors disabled:opacity-50"
+                >
+                  <FiTrash2 className="text-xs" />
+                  <span>{deletingId === data._id ? "Menghapus..." : "Hapus"}</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

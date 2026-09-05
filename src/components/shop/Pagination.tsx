@@ -1,78 +1,74 @@
-export default function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) {
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-    function handlePrevPage() {
-        window.scrollTo(0, 0)
-        onPageChange(currentPage - 1)
-    }
-    function handleNextPage() {
-        window.scrollTo(0, 0)
-        onPageChange(currentPage + 1)
-    }
-    function handlePageChange(page: number) {
-        window.scrollTo(0, 0)
-        onPageChange(page)
-    }
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
 
+  function handlePrevPage() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    onPageChange(Math.max(1, currentPage - 1));
+  }
 
-    return (
-        <ol className="flex justify-center gap-1 mt-10 mb-20 text-xs font-medium" >
-            <li>
-                <button
-                    onClick={handlePrevPage}
-                    disabled={currentPage === 1}
-                    className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                    <span className="sr-only">Prev Page</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-3"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fillRule="evenodd"
-                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                        />
-                    </svg>
-                </button>
-            </li>
-            {
-                Array.from({ length: totalPages }).map((_, index) => {
-                    const pageNumber = index + 1
-                    return (
-                        <li key={index}>
-                            <button
-                                onClick={() => handlePageChange(pageNumber)}
-                                className={`block size-8 rounded border border-gray-100  text-center leading-8  ${currentPage === pageNumber ? 'bg-black text-white' : 'bg-white text-gray-900'}`}
-                            >
-                                {pageNumber}
-                            </button>
-                        </li>
-                    )
-                })
-            }
-            <li>
-                <button
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages}
-                    className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === totalPages ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                    <span className="sr-only">Next Page</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-3"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fillRule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clipRule="evenodd"
-                        />
-                    </svg>
-                </button>
-            </li>
-        </ol >
-    )
+  function handleNextPage() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    onPageChange(Math.min(totalPages, currentPage + 1));
+  }
+
+  function handlePageChange(page: number) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    onPageChange(page);
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-12 mb-20 text-xs">
+      <button
+        onClick={handlePrevPage}
+        disabled={currentPage === 1}
+        className={`flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 transition-all ${
+          currentPage === 1
+            ? "opacity-30 cursor-not-allowed text-neutral-400"
+            : "hover:bg-neutral-900 hover:text-white text-neutral-700 bg-white"
+        }`}
+      >
+        <FiChevronLeft className="text-sm" />
+      </button>
+
+      {Array.from({ length: totalPages }).map((_, index) => {
+        const pageNumber = index + 1;
+        const isActive = currentPage === pageNumber;
+        return (
+          <button
+            key={index}
+            onClick={() => handlePageChange(pageNumber)}
+            className={`h-9 min-w-[36px] px-2 rounded-full font-semibold transition-all duration-200 ${
+              isActive
+                ? "bg-neutral-900 text-white shadow-sm"
+                : "bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200/80"
+            }`}
+          >
+            {pageNumber}
+          </button>
+        );
+      })}
+
+      <button
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+        className={`flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 transition-all ${
+          currentPage === totalPages
+            ? "opacity-30 cursor-not-allowed text-neutral-400"
+            : "hover:bg-neutral-900 hover:text-white text-neutral-700 bg-white"
+        }`}
+      >
+        <FiChevronRight className="text-sm" />
+      </button>
+    </div>
+  );
 }

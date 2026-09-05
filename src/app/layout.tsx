@@ -1,68 +1,159 @@
-'use client'
-
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import Footer from "@/components/Footer";
-import { usePathname } from "next/navigation";
-import { SessionProvider, signOut } from "next-auth/react";
-import { CartProvider, DiscountProvider } from "@/context";
-import { useState } from "react";
 import Script from "next/script";
+import AppProviders from "@/components/providers/AppProviders";
 
-interface CartItems {
-  product: {
-    _id: string;
-    name: string;
-    price: number;
-    image_thumbnail: string;
-  }
-  quantity: number;
-}[];
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
-const inter = Inter({ subsets: ["latin"] });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Cyber Apple Store - Authorized Premium Apple Reseller Indonesia",
+    template: "%s | Cyber Apple Store",
+  },
+  description:
+    "Beli produk Apple resmi bergaransi di Cyber Apple Store Indonesia. Dapatkan iPhone 15 Pro, MacBook Pro M3, iPad, Apple Watch, dan AirPods dengan promo cicilan 0% dan garansi resmi 1 tahun.",
+  keywords: [
+    "Apple Store Indonesia",
+    "Apple Authorized Reseller",
+    "Beli iPhone Resmi",
+    "iPhone 15 Pro Max",
+    "MacBook Pro M3",
+    "MacBook Air",
+    "iPad Pro M4",
+    "Apple Watch Ultra 2",
+    "AirPods Pro Gen 2",
+    "Garansi Resmi iBox",
+    "Cicilan 0% Apple",
+    "Cyber Store",
+  ],
+  authors: [{ name: "Cyber Apple Store Indonesia", url: siteUrl }],
+  creator: "Cyber Apple Store",
+  publisher: "Cyber Apple Store Indonesia",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: siteUrl,
+    siteName: "Cyber Apple Store Indonesia",
+    title: "Cyber Apple Store - Authorized Premium Apple Reseller Indonesia",
+    description:
+      "Pusat belanja produk original Apple resmi bergaransi di Indonesia. Nikmati promo eksklusif, cicilan 0%, dan gratis ongkir ke seluruh nusantara.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Cyber Apple Store Indonesia - Authorized Apple Reseller",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cyber Apple Store - Authorized Premium Apple Reseller",
+    description:
+      "Beli produk Apple bergaransi resmi di Indonesia dengan promo cicilan 0% dan pengiriman ekspres ke seluruh Indonesia.",
+    images: ["/og-image.jpg"],
+    creator: "@cyberapplestore",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: [
+      { url: "/logo.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/logo.png",
+    apple: "/apple-touch-icon.png",
+  },
+};
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const [cart, setCart] = useState<CartItems[]>([]);
-  const [discount, setDiscount] = useState<number>(0);
-
-  const pathname: string = usePathname();
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ElectronicsStore",
+    name: "Cyber Apple Store Indonesia",
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    image: `${siteUrl}/og-image.jpg`,
+    description:
+      "Authorized Premium Apple Reseller resmi di Indonesia. Menyediakan iPhone, MacBook, iPad, Apple Watch, dan AirPods bergaransi resmi.",
+    telephone: "+62-21-555-0199",
+    currenciesAccepted: "IDR",
+    paymentAccepted: "Credit Card, Bank Transfer, QRIS, GoPay, BCA Virtual Account",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Menara Cyber Lt. 18, Jl. HR Rasuna Said Blok X-5 Kav. 1-2",
+      addressLocality: "Jakarta Selatan",
+      addressRegion: "DKI Jakarta",
+      postalCode: "12950",
+      addressCountry: "ID",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: -6.2297465,
+      longitude: 106.829518,
+    },
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "09:00",
+      closes: "21:00",
+    },
+    priceRange: "Rp Rp Rp",
+  };
 
   return (
-    <html className="scroll-smooth " lang="en">
+    <html className="scroll-smooth" lang="id">
       <head>
-        <Script type="text/javascript"
+        <Script
+          type="text/javascript"
           src="https://app.sandbox.midtrans.com/snap/snap.js"
-          data-client-key={process.env.MIDTRANS_CLIENT_KEY}></Script>
+          data-client-key={process.env.MIDTRANS_CLIENT_KEY}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
-      <body className={`${inter.className} `}>
-        <DiscountProvider.Provider value={{ discount, setDiscount }}>
-          <CartProvider.Provider value={{ cart, setCart }}>
-            <SessionProvider>
-              <AntdRegistry >
-                <main className="flex flex-col min-h-screen">
-                  {pathname !== '/login' && pathname !== '/register' && (
-                    <div className={`sticky top-0 z-20 w-full `}>
-                      <Navbar />
-                    </div>
-                  )}
-                  {children}
-                  <div className="mt-auto">
-                    {pathname !== '/login' && pathname !== '/register' && <Footer />}
-                  </div>
-                </main>
-              </AntdRegistry>
-            </SessionProvider>
-          </CartProvider.Provider>
-        </DiscountProvider.Provider>
+      <body className={inter.className}>
+        <AppProviders>{children}</AppProviders>
       </body>
-    </html >
+    </html>
   );
 }

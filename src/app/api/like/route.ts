@@ -15,7 +15,8 @@ export const GET = async (req: NextRequest) => {
     }
     try {
         const { data } = await axios.get(`${process.env.API_ENDPOINT_DATA}/likes`, config)
-        return NextResponse.json(data)
+        const list = Array.isArray(data) ? data : (data?.data || data?.likes || []);
+        return NextResponse.json(list)
     } catch (error) {
         return NextResponse.error()
     }

@@ -1,30 +1,54 @@
-"use client"
+"use client";
 
-import React from 'react';
-import { Tabs } from 'antd';
-import type { TabsProps } from 'antd';
-import Tab1 from './tabContent/Tab1';
+import React, { useState } from "react";
+import Tab1 from "./tabContent/Tab1";
 
-const onChange = (key: string) => {
-    console.log(key);
-};
+export default function TabHomeSec(): JSX.Element {
+  const [activeTab, setActiveTab] = useState<string>("");
 
-const items: TabsProps['items'] = [
-    {
-        key: '1',
-        label: 'Product',
-        children: <Tab1 />,
-    },
-];
+  const tabs = [
+    { label: "All Products", category: "" },
+    { label: "iPhone", category: "iPhone" },
+    { label: "MacBook", category: "MacBook" },
+    { label: "Apple Watch", category: "Apple Watch" },
+    { label: "AirPods", category: "AirPods" },
+  ];
 
-const TabHomeSec: React.FC = (): JSX.Element => {
-    return (
-        <div className='container px-14 mx-auto'>
-            <Tabs size='large' style={{
-                width: '100%',
-            }} defaultActiveKey="1" items={items} onChange={onChange} />
+  return (
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+            Curated Collection
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 mt-1">
+            Featured Products
+          </h2>
         </div>
-    )
-}
 
-export default TabHomeSec;
+        {/* Apple Pill Tabs */}
+        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-full bg-neutral-100/90 border border-neutral-200/80 w-fit">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.category;
+            return (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.category)}
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-white text-black shadow-sm font-semibold"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tab Content Products Grid */}
+      <Tab1 category={activeTab} limit={8} />
+    </section>
+  );
+}

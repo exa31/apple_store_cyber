@@ -6,6 +6,8 @@ import { CardProps } from "../type";
 
 import CardShopDetail from "./CardShopDetail";
 
+import CardSkeleton from "./CardSkeleton";
+
 export default function AnotherProducts({ category, id, favorite, setFavorite }: { id: string, category: string, favorite: { _id: string }[], setFavorite: (favorite: { _id: string }[]) => void }) {
 
     const [products, setProducts] = useState<CardProps[]>([])
@@ -17,21 +19,22 @@ export default function AnotherProducts({ category, id, favorite, setFavorite }:
     useEffect(() => {
         setLoading(true)
         fetch(`/api/products?limit=12&skip=${skip * 12}&category=${category}&id=${id}`).then(res => res.json()).then(data => {
-            setProducts([...products, ...data.products])
-            setCount(data.count)
+            const list = data?.products || data?.data?.products || [];
+            const count = data?.count !== undefined ? data.count : (data?.data?.count || 0);
+            setProducts([...products, ...list])
+            setCount(count)
             setLoading(false)
         }).catch(err => {
             console.log(err)
             setLoading(false)
-            return new Error(err)
         })
-    }, [category, skip])
+    }, [skip, id, category])
 
     return (
         <div className="container mx-auto">
             <div className="flex flex-col items-center mt-20 justify-center gap-4">
-                <h1 className="text-4xl font-bold text-center text-gray-900">Related Products</h1>
-                <div className="container mb-20 gap-4 mt-4 mx-auto grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
+                <h1 className="text-3xl sm:text-4xl font-bold text-center text-neutral-900">Related Products</h1>
+                <div className="container mb-12 gap-5 mt-4 mx-auto grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
                     {products.map((item: CardProps, index: number) => {
                         return (
                             <CardShopDetail key={index} setFavorite={setFavorite} product={item} favorite={favorite} />
@@ -39,15 +42,27 @@ export default function AnotherProducts({ category, id, favorite, setFavorite }:
                     })}
                 </div>
             </div>
-            <div className="flex justify-center mb-10">
-                {loading ? <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-                    :
-                    <button className={`block rounded-lg  bg-transparent p-4 text-sm font-medium transition hover:scale-105 text-black border-2 ${products.length === count && 'hidden'} border-black`} onClick={() => {
-                        setSkip(skip + 1)
-                        setLoading(true)
-                    }}>Load More</button>
-                }
-
+            <div className="flex justify-center mb-16">
+                {loading ? (
+                    <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 w-full">
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                    </div>
+                ) : (
+                    <button
+                        className={`rounded-full bg-neutral-100 hover:bg-neutral-200 px-8 py-3 text-xs font-semibold text-neutral-800 transition-all shadow-sm ${
+                            products.length >= count ? "hidden" : ""
+                        }`}
+                        onClick={() => {
+                            setSkip(skip + 1);
+                            setLoading(true);
+                        }}
+                    >
+                        Load More Products
+                    </button>
+                )}
             </div>
         </div>
     )

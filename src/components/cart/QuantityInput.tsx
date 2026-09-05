@@ -1,28 +1,35 @@
-'use client'
+"use client";
 
 interface QuantityInputProps {
-    quantity: number;
-    handleDecrement: () => void;
-    handleIncrement: () => void;
+  quantity: number;
+  handleDecrement: () => void;
+  handleIncrement: () => void;
 }
 
-export default function QuantityInput({ quantity, handleDecrement, handleIncrement }: QuantityInputProps) {
-
-    return (
-        <div>
-            <div className="flex items-center rounded border border-gray-200">
-                <button type="button" onClick={handleDecrement} className="size-10 leading-10 text-black font-medium transition hover:opacity-75">
-                    &minus;
-                </button>
-                <p
-                    id="Quantity"
-                    className=" w-5 border-transparent text-center sm:text-sm "
-                >{quantity}</p>
-
-                <button onClick={handleIncrement} type="button" className="size-10 leading-10 text-black font-medium transition hover:opacity-75">
-                    +
-                </button>
-            </div>
-        </div>
-    )
+export default function QuantityInput({
+  quantity,
+  handleDecrement,
+  handleIncrement,
+}: QuantityInputProps) {
+  return (
+    <div className="inline-flex items-center rounded-full border border-neutral-300 bg-white">
+      <button
+        type="button"
+        onClick={handleDecrement}
+        className="w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-black font-semibold text-xs transition-colors"
+      >
+        &minus;
+      </button>
+      <span className="w-6 text-center text-xs font-semibold text-neutral-900 select-none">
+        {quantity}
+      </span>
+      <button
+        type="button"
+        onClick={handleIncrement}
+        className="w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-black font-semibold text-xs transition-colors"
+      >
+        +
+      </button>
+    </div>
+  );
 }

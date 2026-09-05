@@ -1,102 +1,131 @@
+"use client";
+
 import Image from "next/image";
 import QuantityInput from "./QuantityInput";
 import { useContext } from "react";
 import { CartProvider } from "@/context";
 import axios from "axios";
-import { formatRupiah } from "@/helper";
-import { IoMdClose } from "react-icons/io";
+import { formatRupiah, getImageUrl } from "@/helper";
+import { FiTrash2 } from "react-icons/fi";
+import Link from "next/link";
 
 interface CartItems {
-    product: {
-        _id: string;
-        name: string;
-        price: number;
-        image_thumbnail: string;
-    }
-    quantity: number;
+  product: {
+    _id: string;
+    name: string;
+    price: number;
+    image_thumbnail: string;
+  };
+  quantity: number;
 }
 
 export default function ListCart({ data }: { data: CartItems }) {
+  const cartContext = useContext(CartProvider);
+  const cart = cartContext?.cart || [];
+  const setCart = cartContext?.setCart;
 
-    const cartContext = useContext(CartProvider);
-    const { cart, setCart } = cartContext!;
+  const handleRemove = async () => {
+    try {
+      const res = await axios.post("/api/cart/remove", {
+        productId: data.product._id,
+      });
+      if (res.status === 200 && setCart) {
+        const newCart = cart.filter((item) => item.product?._id !== data.product._id);
+        setCart(newCart);
+      }
+    } catch {}
+  };
 
-    const handleRemove = async () => {
-        const res = await axios.post('/api/cart/remove', {
-            productId: data.product._id
-        })
-        if (res.status === 200) {
-            const newCart = cart.filter((item: CartItems) => item.product._id !== data.product._id)
-            return setCart(newCart)
+  const handleDecrement = async () => {
+    try {
+      const res = await axios.post("/api/cart/reduce", {
+        productId: data.product._id,
+        quantity: 1,
+      });
+      if (res.status === 200 && setCart) {
+        if (data.quantity <= 1) {
+          const newCart = cart.filter((item) => item.product?._id !== data.product._id);
+          setCart(newCart);
         } else {
-            return
+          const newCart = cart.map((item) =>
+            item.product?._id === data.product._id
+              ? { ...item, quantity: item.quantity - 1 }
+              : item
+          );
+          setCart(newCart);
         }
-    }
+      }
+    } catch {}
+  };
 
-    const handleDecrement = async () => {
-        const res = await axios.post('/api/cart/reduce', {
-            productId: data.product._id,
-            quantity: 1
-        })
-        if (res.status === 200) {
-            const product = cart.find((item) => item.product._id === data.product._id)!
-            if (product.quantity === 1) {
-                const newCart = cart.filter((item: CartItems) => item.product._id !== data.product._id)
-                return setCart(newCart)
-            } else {
-                const newCart = cart.map((item: CartItems) => {
-                    if (item.product._id === data.product._id) {
-                        return { product: item.product, quantity: item.quantity - 1 }!
-                    } else {
-                        return item
-                    }
-                })
-                return setCart(newCart)
-            }
-        } else {
-            return
-        }
-    }
+  const handleIncrement = async () => {
+    try {
+      const res = await axios.post("/api/cart/add", {
+        productId: data.product._id,
+        quantity: 1,
+      });
+      if (res.status === 200 && setCart) {
+        const newCart = cart.map((item) =>
+          item.product?._id === data.product._id
+            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            : item
+        );
+        setCart(newCart);
+      }
+    } catch {}
+  };
 
-    const handleIncrement = async () => {
-        const res = await axios.post('/api/cart/add', {
-            productId: data.product._id,
-            quantity: 1
-        })
-        if (res.status === 200) {
-            const existProduct = cart.find((item) => item.product._id === data.product._id)
-            if (existProduct) {
-                const newCart = cart.map((item: CartItems) => {
-                    if (item.product._id === data.product._id) {
-                        return { product: item.product, quantity: item.quantity + 1 }!
-                    } else {
-                        return item
-                    }
-                })
-                return setCart(newCart)
-            } else
-                return setCart([...cart, { product: data.product, quantity: 1 }])
-        } else {
-            return
-        }
-    }
-
-    return (
-        <div className="flex md:gap-8 gap-4 flex-row items-center">
-            <Image className="md:w-36 w-20" width={500} height={500} src={`https://backend-store-apple.vercel.app/images${data.product.image_thumbnail}`} alt={data.product.image_thumbnail} />
-            <div className="flex md:flex-row flex-col md:gap-4">
-                <div className='md:w-52'>
-                    <h1 className="text-base font-medium">{data.product.name}</h1>
-                    <p className="text-sm opacity-80">{data.product._id}</p>
-                </div>
-                <div className="flex md:flex-row flex-col md:items-center md:gap-4">
-                    <QuantityInput quantity={data.quantity} handleDecrement={handleDecrement} handleIncrement={handleIncrement} />
-                    <div className="flex items-center">
-                        <h1 className="text-base w-32 p-2 font-medium">{formatRupiah(data.quantity * data.product.price)}</h1>
-                        <IoMdClose onClick={handleRemove} className="w-10 hover:cursor-pointer" />
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-50 border border-neutral-200/70 hover:border-neutral-300 transition-colors">
+      {/* Product Image & Info */}
+      <div className="flex items-center gap-4 w-full sm:w-auto">
+        <Link
+          href={`/shop/${data.product._id}`}
+          className="relative w-20 h-20 rounded-xl bg-white p-2 border border-neutral-200/60 flex-shrink-0 flex items-center justify-center"
+        >
+          <Image
+            src={getImageUrl(data.product.image_thumbnail)}
+            alt={data.product.name}
+            width={80}
+            height={80}
+            className="object-contain max-h-full"
+          />
+        </Link>
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/shop/${data.product._id}`}
+            className="font-semibold text-sm text-neutral-900 hover:text-blue-600 transition-colors line-clamp-1"
+          >
+            {data.product.name}
+          </Link>
+          <p className="text-xs text-neutral-400 mt-0.5">
+            Unit Price: {formatRupiah(data.product.price)}
+          </p>
         </div>
-    )
+      </div>
+
+      {/* Quantity & Line Total */}
+      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-neutral-200/60">
+        <QuantityInput
+          quantity={data.quantity}
+          handleDecrement={handleDecrement}
+          handleIncrement={handleIncrement}
+        />
+
+        <div className="text-right min-w-[110px]">
+          <p className="text-sm font-bold text-neutral-900">
+            {formatRupiah(data.quantity * data.product.price)}
+          </p>
+        </div>
+
+        <button
+          onClick={handleRemove}
+          aria-label="Remove item"
+          className="p-2 rounded-full text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <FiTrash2 className="text-base" />
+        </button>
+      </div>
+    </div>
+  );
 }

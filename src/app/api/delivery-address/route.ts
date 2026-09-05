@@ -16,7 +16,8 @@ export const GET = async (req: NextRequest) => {
             return NextResponse.json({ message: 'Not Found', status: 404 });
         }
         const data = await res.json();
-        return NextResponse.json(data);
+        const list = Array.isArray(data) ? data : (data?.data || data?.deliveryAddresses || []);
+        return NextResponse.json(list);
     } catch (error: any) {
         return NextResponse.error();
     }

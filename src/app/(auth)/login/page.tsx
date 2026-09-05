@@ -1,111 +1,258 @@
-'use client'
+"use client";
 
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import Script from "next/script";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { SiApple } from "react-icons/si";
+import { FcGoogle } from "react-icons/fc";
+import { FiArrowLeft } from "react-icons/fi";
 
-interface EventTargetLogin extends FormEvent<HTMLFormElement> {
-    target: HTMLFormElement & {
-        email: {
-            value: string;
-        };
-        password: {
-            value: string;
-        };
-    }
+declare global {
+  interface Window {
+    google?: any;
+  }
 }
 
 export default function Login() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
-    const router = useRouter();
+  const handleGoogleCredentialResponse = async (response: any) => {
+    if (!response?.credential) {
+      setError("Failed to retrieve Google token");
+      return;
+    }
 
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState<boolean>(false);
+    setSubmitting(true);
+    setError(null);
 
-    const handleSignIn = async (e: EventTargetLogin) => {
-        setSubmitting(true);
-        e.preventDefault();
-        const form = new FormData(e.currentTarget);
-        const email = form.get('email') as string;
-        const password = form.get('password') as string;
-        const response = await signIn('credentials', {
-            email,
-            password,
-            redirect: false,
+    try {
+      // Delegate validation 100% to Backend via google-backend provider
+      const authResult = await signIn("google-backend", {
+        credential: response.credential,
+        redirect: false,
+      });
+
+      if (authResult?.error) {
+        // Try fallback via direct API route
+        const directRes = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
         });
-        if (response?.error) {
-            e.target.password.value = '';
-            e.target.email.value = '';
-            setSubmitting(false);
-            setError(true);
-            return
+
+        if (!directRes.ok) {
+          const errData = await directRes.json().catch(() => ({}));
+          setError(errData.message || "Google authentication failed in backend.");
+          setSubmitting(false);
+          return;
         }
-        return router.push('/shop');
-    };
+      }
 
+      router.push("/shop");
+      router.refresh();
+    } catch (err: any) {
+      setError(err?.message || "An unexpected error occurred during Google sign-in.");
+      setSubmitting(false);
+    }
+  };
 
-    return (
-        <div className="flex w-full max-w-sm my-auto mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:max-w-4xl ">
-            <div className="hidden bg-cover lg:block lg:w-1/2" style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1606660265514-358ebbadc80d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1575&q=80')"
-            }}></div>
-            <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
-                < p className="mt-3 text-xl text-center text-gray-600 dark:text-gray-200">
-                    Welcome back!
-                </p>
-                <button onClick={() => signIn('google')} className="flex w-full items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg dark:border-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <div className="px-4 py-2">
-                        <svg className="w-6 h-6" viewBox="0 0 40 40">
-                            <path d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z" fill="#FFC107" />
-                            <path d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z" fill="#FF3D00" />
-                            <path d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z" fill="#4CAF50" />
-                            <path d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z" fill="#1976D2" />
-                        </svg>
-                    </div>
+  // Initialize Google Identity Services
+  const initializeGsi = () => {
+    const clientId =
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      "897905079551-0bm5skv53tbcpqobtlkaatmfheftthc4.apps.googleusercontent.com";
 
-                    <span className="w-5/6 px-4 py-3 font-bold text-center">Sign in with Google</span>
-                </button>
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
 
-                <div className="flex items-center justify-between mt-4">
-                    <span className="w-1/5 border-b dark:border-gray-600 lg:w-1/4"></span>
+      if (googleBtnRef.current) {
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          theme: "outline",
+          size: "large",
+          type: "standard",
+          shape: "pill",
+          text: "continue_with",
+          logo_alignment: "left",
+          width: 380,
+        });
+      }
+    }
+  };
 
-                    <p className="text-xs text-center text-gray-500 uppercase dark:text-gray-400">or login
-                        with email</p>
+  useEffect(() => {
+    if (window.google?.accounts?.id) {
+      initializeGsi();
+    }
+  }, []);
 
-                    <span className="w-1/5 border-b dark:border-gray-400 lg:w-1/4"></span>
-                </div>
-                {error && <p className="text-red-500 text-center mt-2">Email or password is incorrect</p>}
-                <form onSubmit={handleSignIn}>
-                    <div className="mt-4">
-                        <label className="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" htmlFor="LoggingEmailAddress">Email Address</label>
-                        <input id="LoggingEmailAddress" name="email" className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300" type="email" />
-                    </div>
-                    <div className="mt-4">
-                        <div className="flex justify-between">
-                            <label className="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-200" htmlFor="loggingPassword">Password</label>
-                            <a href="#" className="text-xs text-gray-500 dark:text-gray-300 hover:underline">Forget Password?</a>
-                        </div>
+  const triggerGooglePrompt = () => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt();
+    } else {
+      setError("Google Sign-In is initializing. Please try again in a moment.");
+    }
+  };
 
-                        <input id="loggingPassword" name='password' className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-blue-300" type="password" />
-                    </div>
-                    <div className="mt-6">
-                        <button type="submit" className={`w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 ${submitting && 'btn-disabled'}`}>
-                            Sign In
-                        </button>
-                        <button onClick={() => router.back()} type="button" className={`w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50 ${submitting && 'btn-disabled'}`}>
-                            Back
-                        </button>
-                    </div>
-                </form>
-                <div className="flex items-center justify-between mt-4">
-                    <span className="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
+  const handleCredentialsSignIn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
-                    <Link href="/register" className="text-xs text-gray-500 uppercase dark:text-gray-400 hover:underline">or sign up</Link>
+    const form = new FormData(e.currentTarget);
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-                    <span className="w-1/5 border-b dark:border-gray-600 md:w-1/4"></span>
-                </div>
+    const response = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (response?.error) {
+      setSubmitting(false);
+      setError("Invalid email address or password");
+      return;
+    }
+
+    router.push("/shop");
+    router.refresh();
+  };
+
+  return (
+    <>
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={initializeGsi}
+      />
+
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#fbfbfd]">
+        <div className="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-neutral-200/80 shadow-xl space-y-6">
+          {/* Back Link */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-black transition-colors"
+          >
+            <FiArrowLeft /> Back to Store
+          </Link>
+
+          {/* Brand Header */}
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl p-[1.5px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 mx-auto shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center">
+              <div className="w-full h-full bg-[#080b11] rounded-[14px] flex items-center justify-center p-2">
+                <Image
+                  src="/logo.png"
+                  alt="Cyber Apple Logo"
+                  width={34}
+                  height={34}
+                  className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(6,182,212,0.85)]"
+                  priority
+                />
+              </div>
             </div>
-        </div >
-    )
-};  
+            <h1 className="text-2xl font-black tracking-tight text-neutral-900">
+              Sign In to Cyber Apple
+            </h1>
+            <p className="text-xs text-neutral-500">
+              Access your shopping bag, order history, and saved wishlist
+            </p>
+          </div>
+
+          {/* Google Sign In Container */}
+          <div className="space-y-2">
+            <div
+              ref={googleBtnRef}
+              className="w-full flex justify-center overflow-hidden min-h-[44px]"
+            />
+
+            {/* Custom styled button fallback */}
+            <button
+              onClick={triggerGooglePrompt}
+              type="button"
+              disabled={submitting}
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full border border-neutral-300 hover:bg-neutral-50 text-xs font-semibold text-neutral-700 transition-colors shadow-sm active:scale-[0.99]"
+            >
+              <FcGoogle className="text-lg" />
+              <span>Continue with Google One-Tap</span>
+            </button>
+          </div>
+
+          <div className="relative flex items-center justify-center">
+            <div className="border-t border-neutral-200 w-full" />
+            <span className="bg-white px-3 text-[11px] text-neutral-400 uppercase tracking-wider absolute">
+              Or with email
+            </span>
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 text-center font-medium">
+              {error}
+            </div>
+          )}
+
+          {/* Credentials Form */}
+          <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="name@example.com"
+                className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-semibold text-neutral-700">
+                  Password
+                </label>
+              </div>
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="••••••••"
+                className="w-full text-xs px-4 py-3 rounded-xl border border-neutral-300 outline-none focus:border-neutral-900 transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-3.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all duration-200 shadow-md hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50"
+            >
+              {submitting ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          <div className="text-center pt-2">
+            <p className="text-xs text-neutral-500">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-semibold text-blue-600 hover:underline"
+              >
+                Create yours now
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -6,11 +6,32 @@ const nextConfig = {
     images: {
         remotePatterns: [
             {
+                protocol: 'http',
+                hostname: 'localhost',
+                port: '5000',
+                pathname: '/**',
+            },
+            {
+                protocol: 'http',
+                hostname: '127.0.0.1',
+                port: '5000',
+                pathname: '/**',
+            },
+            {
                 protocol: 'https',
                 hostname: 'backend-store-apple.vercel.app',
-                port: '', // Specify the port number
                 pathname: '/**',
-            }
+            },
+            {
+                protocol: 'https',
+                hostname: 'be-apple-store.eka-dev.cloud',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'storage.eka-dev.cloud',
+                pathname: '/**',
+            },
         ]
     }
 };

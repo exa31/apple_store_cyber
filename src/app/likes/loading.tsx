@@ -1,66 +1,20 @@
+import CardSkeleton from "@/components/shop/CardSkeleton";
+
 export default function Loading(): JSX.Element {
-    return (
-        <div className="bg-white">
-            <div className="container px-6 py-10 mx-auto animate-pulse">
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[70vh]">
+      {/* Header Skeleton */}
+      <div className="pb-6 border-b border-neutral-200/80 mb-8 animate-pulse space-y-3">
+        <div className="h-9 sm:h-10 w-64 sm:w-80 bg-neutral-200/80 rounded-2xl" />
+        <div className="h-3.5 w-44 bg-neutral-100 rounded-full" />
+      </div>
 
-                <div className="grid grid-cols-1 gap-8 mt-8 xl:mt-12 xl:gap-12 sm:grid-cols-2 xl:grid-cols-4 lg:grid-cols-3">
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-
-                    <div className="w-full ">
-                        <div className="w-full h-64 bg-gray-300 rounded-lg dark:bg-gray-600"></div>
-
-                        <h1 className="w-56 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></h1>
-                        <p className="w-24 h-2 mt-4 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+      {/* Grid of Card Skeletons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(8)].map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -1,196 +1,367 @@
-'use client';
+"use client";
 
 import Select from "@/components/account/Select";
-import { FormEvent, useEffect, useState } from "react";
 import TextArea from "@/components/account/TextArea";
-import { useRouter } from "next/navigation";
-import { getKecamatan, getKelurahan, getKota, getProvinsi } from "@/services/wilayah";
+import { AddressFormSkeleton } from "@/components/ui/Skeleton";
+import { toast } from "@/components/ui/Toast";
+import {
+  getKecamatan,
+  getKelurahan,
+  getKota,
+  getProvinsi,
+} from "@/services/wilayah";
 import axios from "axios";
-
-interface Address {
-    name: string,
-    kelurahan: string,
-    kecamatan: string,
-    kota: string,
-    provinsi: string,
-    detail: string,
-    _id: string
-}
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import {
+  FiAlertCircle,
+  FiArrowLeft,
+  FiCheck,
+  FiEdit2,
+  FiMapPin,
+  FiUser,
+} from "react-icons/fi";
 
 interface EventSubmit extends FormEvent<HTMLFormElement> {
-    target: HTMLFormElement & {
-        name: {
-            value: string
-        },
-        detail: {
-            value: string
-        }
-    }
+  target: HTMLFormElement & {
+    name: {
+      value: string;
+    };
+    detail: {
+      value: string;
+    };
+  };
 }
 
-export default function EditAddress({ params: { id } }: { params: { id: string } }) {
+export default function EditAddress({
+  params: { id },
+}: {
+  params: { id: string };
+}) {
+  const router = useRouter();
 
-    const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [submit, setSubmit] = useState(false);
 
-    const [submit, setSubmit] = useState(false);
+  const [error, setError] = useState({
+    name: false,
+    detail: false,
+  });
 
-    const [error, setError] = useState({
-        name: false,
-        detail: false
-    });
+  const [data, setData] = useState({
+    provinsi: [],
+    kabupaten: [],
+    kecamatan: [],
+    kelurahan: [],
+  });
+  const [idAddress, setIdAddress] = useState({
+    provinsi: "",
+    kabupaten: "",
+    kecamatan: "",
+    kelurahan: "",
+  });
+  const [address, setAddress] = useState({
+    provinsi: "",
+    kabupaten: "",
+    kecamatan: "",
+    kelurahan: "",
+  });
+  const [prevAddress, setPrevAddress] = useState({
+    provinsi: "",
+    kabupaten: "",
+    kecamatan: "",
+    kelurahan: "",
+    detail: "",
+    name: "",
+  });
 
-    const [data, setData] = useState({
-        provinsi: [],
-        kabupaten: [],
-        kecamatan: [],
-        kelurahan: []
-    });
-    const [idAddress, setIdAddress] = useState({
-        provinsi: '',
-        kabupaten: '',
-        kecamatan: '',
-        kelurahan: ''
-    });
-    const [address, setAddress] = useState({
-        provinsi: '',
-        kabupaten: '',
-        kecamatan: '',
-        kelurahan: '',
-    });
-    const [prevAddress, setPrevAddress] = useState({
-        provinsi: '',
-        kabupaten: '',
-        kecamatan: '',
-        kelurahan: '',
-        detail: '',
-        name: ''
-    });
-
-    useEffect(() => {
-        fetch(`/api/delivery-address/${id}`).then((res) => res.json()).then((data) => {
-            setPrevAddress(data);
-        });
-    }, [id]);
-    useEffect(() => {
-        getProvinsi().then((data) => {
-            setData((prevData) => ({
-                ...prevData,
-                provinsi: data
-            }));
-        });
-    }, []);
-
-    useEffect(() => {
-        if (idAddress.provinsi) {
-            getKota(idAddress.provinsi).then((data) => {
-                setData((prevData) => ({
-                    ...prevData,
-                    kabupaten: data
-                }));
-            });
+  useEffect(() => {
+    fetch(`/api/delivery-address/${id}`)
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData) {
+          setPrevAddress(resData);
+          setAddress({
+            provinsi: resData.provinsi || "",
+            kabupaten: resData.kabupaten || "",
+            kecamatan: resData.kecamatan || "",
+            kelurahan: resData.kelurahan || "",
+          });
         }
-    }, [idAddress.provinsi]);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [id]);
 
-    useEffect(() => {
-        if (idAddress.kabupaten) {
-            getKecamatan(idAddress.kabupaten).then((data) => {
-                setData((prevData) => ({
-                    ...prevData,
-                    kecamatan: data
-                }));
-            });
-        }
-    }, [idAddress.kabupaten]);
+  useEffect(() => {
+    getProvinsi().then((provList) => {
+      setData((prev) => ({
+        ...prev,
+        provinsi: provList || [],
+      }));
+    });
+  }, []);
 
-    useEffect(() => {
-        if (idAddress.kecamatan) {
-            getKelurahan(idAddress.kecamatan).then((data) => {
-                setData((prevData) => ({
-                    ...prevData,
-                    kelurahan: data
-                }));
-            });
-        }
-    }, [idAddress.kecamatan]);
+  useEffect(() => {
+    if (idAddress.provinsi) {
+      getKota(idAddress.provinsi).then((cities) => {
+        setData((prev) => ({
+          ...prev,
+          kabupaten: cities || [],
+        }));
+      });
+    }
+  }, [idAddress.provinsi]);
 
-    function handleName(label: string, name: string) {
-        setAddress({
-            ...address,
-            [label]: name
-        });
+  useEffect(() => {
+    if (idAddress.kabupaten) {
+      getKecamatan(idAddress.kabupaten).then((districts) => {
+        setData((prev) => ({
+          ...prev,
+          kecamatan: districts || [],
+        }));
+      });
+    }
+  }, [idAddress.kabupaten]);
+
+  useEffect(() => {
+    if (idAddress.kecamatan) {
+      getKelurahan(idAddress.kecamatan).then((villages) => {
+        setData((prev) => ({
+          ...prev,
+          kelurahan: villages || [],
+        }));
+      });
+    }
+  }, [idAddress.kecamatan]);
+
+  function handleName(label: string, name: string) {
+    setAddress((prev) => ({
+      ...prev,
+      [label]: name,
+    }));
+  }
+
+  function handleSelect(label: string, value: string) {
+    setIdAddress((prev) => ({
+      ...prev,
+      [label]: value,
+    }));
+  }
+
+  const handleSubmit = (e: EventSubmit) => {
+    e.preventDefault();
+    setSubmit(true);
+    const detail = e.target.detail.value;
+    const name = e.target.name.value;
+    const errObj = {
+      name: false,
+      detail: false,
+    };
+
+    if (name.trim().length < 3) {
+      errObj.name = true;
     }
 
-    function handleSelect(label: string, value: string) {
-        setIdAddress({
-            ...idAddress,
-            [label]: value
-        });
+    if (detail.trim().length < 3) {
+      errObj.detail = true;
     }
 
-    const handleSubmit = (e: EventSubmit) => {
-        e.preventDefault();
-        setSubmit(true);
-        const detail = e.target.detail.value;
-        const name = e.target.name.value;
-        const error = {
-            name: false,
-            detail: false
-        }
-
-        if (name.length < 3) {
-            error.name = true;
-        }
-
-        if (address.provinsi !== '') { }
-
-        if (detail.length < 3) {
-            error.detail = true;
-        }
-
-        if (error.name || error.detail) {
-            setError(error);
-            setSubmit(false);
-            return;
-        } else {
-            const payload = { ...address, detail: detail, name: name };
-            axios.put(`/api/delivery-address/${id}`, payload).then(() => {
-                router.push('/account/address');
-            }).catch((err) => {
-
-                alert('Failed to update address');
-            }).finally(() => {
-                setSubmit(false);
-            });
-        }
+    if (errObj.name || errObj.detail) {
+      setError(errObj);
+      setSubmit(false);
+      return;
     }
+
+    const payload = {
+      ...address,
+      detail,
+      name,
+    };
+
+    axios
+      .put(`/api/delivery-address/${id}`, payload)
+      .then(() => {
+        toast.success(
+          "Alamat Diperbarui",
+          "Perubahan alamat pengiriman telah berhasil disimpan."
+        );
+        router.push("/account/address");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(
+          "Gagal Memperbarui",
+          "Tidak dapat memperbarui alamat. Silakan coba sesaat lagi."
+        );
+      })
+      .finally(() => {
+        setSubmit(false);
+      });
+  };
+
+  if (loading) {
     return (
-        <div className="p-3 w-full rounded-xl">
-            <div className="py-8 mb-4 border-2">
-                <h1 className="text-center text-4xl font-bold">Edit Address</h1>
-            </div>
-            <h4 className="text-lg font-semibold">Alamat Sebelumnya</h4>
-            <p>{`${prevAddress.provinsi}, ${prevAddress.kabupaten}, ${prevAddress.kecamatan}, ${prevAddress.kelurahan}, ${prevAddress.detail}`}</p>
-            <form className="mt-10 grid sm:grid-cols-2 gap-8" onSubmit={handleSubmit}>
-                <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Name</span>
-                    </label>
-                    <input type="text" placeholder="Name" name="name" defaultValue={prevAddress.name} className="input input-bordered" required />
-                    {error.name && <p className="text-red-500">Name must be at least 3 characters</p>}
-                </div>
-                <Select name="provinsi" label="Provinsi" handleName={handleName} handleSelect={handleSelect} options={data.provinsi} />
-                <Select name="kabupaten" label="Kabupaten/Kota" handleName={handleName} handleSelect={handleSelect} options={data.kabupaten} />
-                <Select name="kecamatan" label="Kecamatan" handleName={handleName} handleSelect={handleSelect} options={data.kecamatan} />
-                <Select name="kelurahan" label="Kelurahan" handleName={handleName} handleSelect={handleSelect} options={data.kelurahan} />
-                <div>
-                    <TextArea label="Detail" name="detail" value={prevAddress.detail} />
-                    {error.detail && <p className="text-red-500">Detail is required</p>}
-                </div>
-                <div className="flex-row gap-5 mt-6 form-control">
-                    <button onClick={() => window.history.back()} className="block rounded-lg  bg-transparent py-4 px-8 text-sm font-medium transition hover:scale-105 border-2 border-black text-black">Back</button>
-                    <button disabled={submit} type="submit" className="block rounded-lg  bg-black px-8 text-sm font-medium transition hover:scale-105 py-4 text-white">Save</button>
-                </div>
-            </form>
+      <div className="max-w-3xl mx-auto space-y-6">
+        <AddressFormSkeleton />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
+      {/* Top Back Link */}
+      <div>
+        <Link
+          href="/account/address"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-black transition-colors"
+        >
+          <FiArrowLeft /> Kembali ke Daftar Alamat
+        </Link>
+      </div>
+
+      {/* Main Edit Card */}
+      <div className="rounded-3xl bg-white p-6 sm:p-10 border border-neutral-200/80 shadow-sm space-y-8">
+        {/* Header */}
+        <div className="pb-6 border-b border-neutral-100">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-neutral-100 text-neutral-700 mb-2">
+            <FiEdit2 /> Perbarui Alamat
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            Edit Alamat Pengiriman
+          </h1>
+          <p className="text-xs text-neutral-500 mt-1">
+            Ubah data penerima atau rincian lokasi pengiriman pesanan Anda
+          </p>
         </div>
-    )
+
+        {/* Current Address Preview Card */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 border border-neutral-200/70 space-y-1.5 text-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+            <FiMapPin /> Alamat Saat Ini Terdaftar
+          </span>
+          <p className="font-semibold text-neutral-800">
+            {prevAddress.name} &bull; {prevAddress.detail}
+          </p>
+          <p className="text-neutral-500">
+            Desa/Kel. {prevAddress.kelurahan}, Kec. {prevAddress.kecamatan},{" "}
+            {prevAddress.kabupaten}, Prov. {prevAddress.provinsi}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Section 1: Penerima */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+              Informasi Penerima
+            </h3>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-neutral-700">
+                Nama Lengkap Penerima
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nama Lengkap"
+                  name="name"
+                  defaultValue={prevAddress.name}
+                  className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium outline-none transition-all pl-10 ${
+                    error.name
+                      ? "bg-red-50/40 border-red-300 text-neutral-900 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      : "bg-white border-neutral-200 hover:border-neutral-300 text-neutral-900 focus:border-black focus:ring-2 focus:ring-black/5 shadow-sm"
+                  }`}
+                  required
+                />
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+                  <FiUser className="text-sm" />
+                </div>
+              </div>
+              {error.name && (
+                <div className="flex items-center gap-1 text-[11px] text-red-500 font-medium pt-0.5">
+                  <FiAlertCircle className="shrink-0" />
+                  <span>Nama harus minimal 3 karakter</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Section 2: Ubah Wilayah (Opsional jika ingin mengganti) */}
+          <div className="space-y-4 pt-4 border-t border-neutral-100">
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                Ubah Wilayah Administratif
+              </h3>
+              <span className="text-[11px] text-neutral-400">
+                (Kosongkan jika tetap sama)
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Select
+                name="provinsi"
+                label="Provinsi"
+                handleName={handleName}
+                handleSelect={handleSelect}
+                options={data.provinsi}
+              />
+              <Select
+                name="kabupaten"
+                label="Kota / Kabupaten"
+                handleName={handleName}
+                handleSelect={handleSelect}
+                options={data.kabupaten}
+              />
+              <Select
+                name="kecamatan"
+                label="Kecamatan"
+                handleName={handleName}
+                handleSelect={handleSelect}
+                options={data.kecamatan}
+              />
+              <Select
+                name="kelurahan"
+                label="Desa / Kelurahan"
+                handleName={handleName}
+                handleSelect={handleSelect}
+                options={data.kelurahan}
+              />
+            </div>
+          </div>
+
+          {/* Section 3: Detail Alamat */}
+          <div className="space-y-4 pt-4 border-t border-neutral-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+              Alamat Lengkap & Patokan
+            </h3>
+            <TextArea
+              label="Alamat Detail"
+              name="detail"
+              value={prevAddress.detail}
+              error={error.detail ? "Detail alamat wajib diisi minimal 3 karakter" : undefined}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100">
+            <Link
+              href="/account/address"
+              className="py-3 px-6 rounded-full border border-neutral-200 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors shadow-sm"
+            >
+              Batal
+            </Link>
+            <button
+              disabled={submit}
+              type="submit"
+              className={`inline-flex items-center gap-2 py-3 px-8 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all shadow-md active:scale-95 ${
+                submit ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02]"
+              }`}
+            >
+              <FiCheck className="text-sm" />
+              <span>{submit ? "Menyimpan Perubahan..." : "Simpan Perubahan"}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }

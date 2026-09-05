@@ -9,6 +9,7 @@ export async function GET(req: NextRequest, { params: { id } }: { params: { id: 
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token?.value}`
             },
+            cache: 'no-store'
         });
         const data = await res.json();
         return NextResponse.json(data);
