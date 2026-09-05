@@ -283,12 +283,8 @@ export default function PaymentSummary({
       // 1) Midtrans Snap Gateway Option
       if (selectedChannel === "snap") {
         const checkout = await axios.post("/api/order", {
-          subTotal,
-          tax,
-          shipping,
-          discount,
-          total: finalTotal,
           deliveryAddress: addressId,
+          discount: discount || 0,
         });
 
         const token = checkout.data.token;
@@ -359,16 +355,12 @@ export default function PaymentSummary({
       }
 
       const response = await axios.post("/api/order/charge", {
-        subTotal,
-        tax,
-        shipping,
-        discount,
-        total: finalTotal,
         deliveryAddress: addressId,
         payment_type,
         paymentType: payment_type,
         bank,
         store,
+        discount: discount || 0,
       });
 
       const resPayload = response.data?.data || response.data;
