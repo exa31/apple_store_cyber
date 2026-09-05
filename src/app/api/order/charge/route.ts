@@ -33,7 +33,14 @@ export const POST = async (req: NextRequest) => {
       config
     );
 
-    return NextResponse.json(response.data);
+    const payload = response.data?.data || response.data;
+    return NextResponse.json({
+      ...response.data,
+      ...payload,
+      status: payload?.status || response.data?.status || (response.data?.success ? "success" : "failed"),
+      order: payload?.order || response.data?.order,
+      charge: payload?.charge || response.data?.charge,
+    });
   } catch (error: any) {
     console.error("Order charge error:", error.response?.data || error.message);
     const status = error.response?.status || 500;

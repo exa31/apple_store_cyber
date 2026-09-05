@@ -366,20 +366,36 @@ export default function PaymentSummary({
         total: finalTotal,
         deliveryAddress: addressId,
         payment_type,
+        paymentType: payment_type,
         bank,
         store,
       });
 
-      if (response.data?.status === "success" && response.data?.charge) {
-        setActivePayment(response.data);
+      const resPayload = response.data?.data || response.data;
+      const chargeData = resPayload?.charge || response.data?.charge;
+      const orderData = resPayload?.order || response.data?.order;
+
+      if (
+        (resPayload?.status === "success" || response.data?.success) &&
+        chargeData &&
+        orderData
+      ) {
+        setActivePayment({
+          ...response.data,
+          ...resPayload,
+          charge: chargeData,
+          order: orderData,
+        });
         if (setDiscount) setDiscount(0);
         setAddress("");
         setCart?.([]);
-        router.push(`/checkout/payment/${response.data.order._id}`);
+        router.push(`/checkout/payment/${orderData._id}`);
         return;
       } else {
         throw new Error(
-          response.data?.message || "Unexpected response from payment server"
+          resPayload?.message ||
+            response.data?.message ||
+            "Unexpected response from payment server"
         );
       }
     } catch (error: any) {
