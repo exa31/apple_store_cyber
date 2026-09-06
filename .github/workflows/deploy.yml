@@ -1,0 +1,28 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: exa31/github-workflows/.github/workflows/backend.yml@v1.0.0
+    with:
+      app_name: fe-apple-store
+      namespace: appel-store
+      image_name: ghcr.io/exa31/fe-apple-store
+      rollout_timeout: 300s
+      push_latest: true
+      ssh_port: 31080
+    secrets:
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
