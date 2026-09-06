@@ -7,7 +7,8 @@ import AppProviders from "@/components/providers/AppProviders";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#080b11",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -40,6 +41,10 @@ export const metadata: Metadata = {
   authors: [{ name: "Cyber Apple Store Indonesia", url: siteUrl }],
   creator: "Cyber Apple Store",
   publisher: "Cyber Apple Store Indonesia",
+  alternates: {
+    canonical: siteUrl,
+  },
+  manifest: "/manifest.json",
   formatDetection: {
     email: false,
     address: false,
@@ -83,11 +88,15 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo.png", type: "image/png" },
-      { url: "/favicon.ico" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
     ],
-    shortcut: "/logo.png",
-    apple: "/apple-touch-icon.png",
+    shortcut: ["/favicon.ico"],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -98,44 +107,69 @@ export default function RootLayout({
 }>) {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "ElectronicsStore",
-    name: "Cyber Apple Store Indonesia",
-    url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
-    image: `${siteUrl}/og-image.jpg`,
-    description:
-      "Authorized Premium Apple Reseller resmi di Indonesia. Menyediakan iPhone, MacBook, iPad, Apple Watch, dan AirPods bergaransi resmi.",
-    telephone: "+62-21-555-0199",
-    currenciesAccepted: "IDR",
-    paymentAccepted: "Credit Card, Bank Transfer, QRIS, GoPay, BCA Virtual Account",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Menara Cyber Lt. 18, Jl. HR Rasuna Said Blok X-5 Kav. 1-2",
-      addressLocality: "Jakarta Selatan",
-      addressRegion: "DKI Jakarta",
-      postalCode: "12950",
-      addressCountry: "ID",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: -6.2297465,
-      longitude: 106.829518,
-    },
-    openingHoursSpecification: {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ],
-      opens: "09:00",
-      closes: "21:00",
-    },
-    priceRange: "Rp Rp Rp",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: "Cyber Apple Store Indonesia",
+        description:
+          "Authorized Premium Apple Reseller resmi di Indonesia. Belanja iPhone, Mac, iPad, dan aksesoris resmi.",
+        potentialAction: [
+          {
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${siteUrl}/shop?search={search_term_string}`,
+            },
+            "query-input": "required name=search_term_string",
+          },
+        ],
+      },
+      {
+        "@type": "ElectronicsStore",
+        "@id": `${siteUrl}/#store`,
+        name: "Cyber Apple Store Indonesia",
+        url: siteUrl,
+        logo: `${siteUrl}/logo.png`,
+        image: `${siteUrl}/og-image.jpg`,
+        description:
+          "Authorized Premium Apple Reseller resmi di Indonesia. Menyediakan iPhone, MacBook, iPad, Apple Watch, dan AirPods bergaransi resmi.",
+        telephone: "+62-21-555-0199",
+        currenciesAccepted: "IDR",
+        paymentAccepted:
+          "Credit Card, Bank Transfer, QRIS, GoPay, BCA Virtual Account",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress:
+            "Menara Cyber Lt. 18, Jl. HR Rasuna Said Blok X-5 Kav. 1-2",
+          addressLocality: "Jakarta Selatan",
+          addressRegion: "DKI Jakarta",
+          postalCode: "12950",
+          addressCountry: "ID",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: -6.2297465,
+          longitude: 106.829518,
+        },
+        openingHoursSpecification: {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ],
+          opens: "09:00",
+          closes: "21:00",
+        },
+        priceRange: "Rp Rp Rp",
+      },
+    ],
   };
 
   return (

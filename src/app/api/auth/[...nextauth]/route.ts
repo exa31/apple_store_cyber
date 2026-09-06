@@ -1,10 +1,17 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import { cookies } from "next/headers";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import axios from "axios";
 
 const authOptions: NextAuthOptions = {
   providers: [
+    // NextAuth Official Google Provider
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+
     // Standard Email & Password credentials
     CredentialsProvider({
       id: "credentials",
@@ -42,7 +49,7 @@ const authOptions: NextAuthOptions = {
       },
     }),
 
-    // Google Sign In with PURE Backend verification
+    // Google Sign In with Backend verification
     CredentialsProvider({
       id: "google-backend",
       name: "Google via Backend",
@@ -85,7 +92,37 @@ const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn() {
+    async signIn({ account, profile, user }) {
+      if (account?.provider === "credentials" || account?.provider === "google-backend") {
+        return true;
+      }
+      if (account?.provider === "google") {
+        try {
+          const res = await fetch(`${process.env.API_ENDPOINT_USER}/signin`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: profile?.email || user?.email,
+            }),
+          });
+          const data = await res.json();
+          if (!data.token) {
+            return "/register";
+          }
+          const expires = new Date();
+          expires.setMonth(expires.getMonth() + 1);
+          cookies().set("jwt", data.token, {
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            expires,
+          });
+          return true;
+        } catch (error) {
+          console.error("NextAuth Google sign-in callback error:", error);
+          return "/register";
+        }
+      }
       return true;
     },
     async jwt({ token, user }) {
