@@ -10,21 +10,32 @@ interface CategoryType {
   id?: string;
 }
 
+const DEFAULT_CATEGORIES: CategoryType[] = [
+  { name: "iPhone" },
+  { name: "iPad" },
+  { name: "MacBook" },
+  { name: "Apple Watch" },
+  { name: "AirPods" },
+];
+
 export default function ShopLayoutClient({ children }: { children: React.ReactNode }) {
-  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>(DEFAULT_CATEGORIES);
   const pathname = usePathname();
 
   useEffect(() => {
     fetch("/api/categories")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
+        if (!data) return;
         const catList = Array.isArray(data) ? data : (data?.data || data?.categories || []);
-        if (Array.isArray(catList)) setCategories(catList);
+        if (Array.isArray(catList) && catList.length > 0) {
+          setCategories(catList);
+        }
       })
       .catch(() => {});
   }, []);
 
-  const isCatalogRoot = pathname === "/shop";
+  const isCatalogRoot = pathname === "/shop" || pathname === "/shop/";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 min-h-screen">

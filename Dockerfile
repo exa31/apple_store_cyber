@@ -14,17 +14,21 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Next.js build-time arguments & env vars
-ARG NEXT_PUBLIC_API_URL=https://storage.eka-dev.cloud
+ARG NEXT_PUBLIC_API_URL=https://be-apple-store.eka-dev.cloud
 ARG NEXT_PUBLIC_SITE_URL=https://apple-store.eka-dev.cloud
 ARG NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-btSBJ7SfqmjcmlrvJYeOOQlT
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=897905079551-0bm5skv53tbcpqobtlkaatmfheftthc4.apps.googleusercontent.com
 ARG NEXT_PUBLIC_IMAGE_URL=https://storage.eka-dev.cloud/images
+ARG API_ENDPOINT_DATA=https://be-apple-store.eka-dev.cloud/api
+ARG API_ENDPOINT_USER=https://be-apple-store.eka-dev.cloud/auth
 
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=$NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ENV NEXT_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_IMAGE_URL
+ENV API_ENDPOINT_DATA=$API_ENDPOINT_DATA
+ENV API_ENDPOINT_USER=$API_ENDPOINT_USER
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
@@ -34,6 +38,10 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV API_ENDPOINT_DATA=https://be-apple-store.eka-dev.cloud/api
+ENV API_ENDPOINT_USER=https://be-apple-store.eka-dev.cloud/auth
+ENV NEXT_PUBLIC_API_URL=https://be-apple-store.eka-dev.cloud
+ENV NEXT_PUBLIC_IMAGE_URL=https://storage.eka-dev.cloud/images
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=80
 ENV HOSTNAME="0.0.0.0"
