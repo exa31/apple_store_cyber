@@ -188,13 +188,13 @@ export default function Navbar() {
                     <div className="max-h-60 overflow-y-auto divide-y divide-neutral-100 my-2">
                       {cart.slice(0, 3).map((item, idx) => (
                         <div key={idx} className="flex items-center gap-3 py-2.5">
-                          <div className="relative w-12 h-12 flex-shrink-0 bg-neutral-50 rounded-lg p-1 border border-neutral-100">
+                          <div className="relative w-12 h-12 aspect-square flex-shrink-0 bg-neutral-50 rounded-xl p-1 border border-neutral-100 flex items-center justify-center overflow-hidden">
                             <Image
                               src={getImageUrl(item.product?.image_thumbnail)}
                               alt={item.product?.name || "Product"}
                               fill
                               sizes="48px"
-                              className="object-contain"
+                              className="object-contain p-0.5"
                             />
                           </div>
                           <div className="flex-1 min-w-0">

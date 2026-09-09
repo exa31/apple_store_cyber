@@ -1,6 +1,6 @@
 export default function CardSkeleton() {
   return (
-    <div className="relative flex flex-col justify-between rounded-3xl bg-white p-5 border border-neutral-200/80 shadow-xs animate-pulse h-[430px] overflow-hidden">
+    <div className="relative flex flex-col justify-between rounded-3xl bg-white p-5 border border-neutral-200/80 shadow-xs animate-pulse overflow-hidden">
       {/* Top Pills */}
       <div className="flex items-center justify-between z-10">
         <div className="h-5 w-16 rounded-full bg-neutral-200/70" />
@@ -8,8 +8,8 @@ export default function CardSkeleton() {
       </div>
 
       {/* Image Preview Box */}
-      <div className="my-4 flex h-52 w-full items-center justify-center rounded-2xl bg-neutral-50/80 border border-neutral-100 p-4">
-        <div className="w-32 h-32 rounded-2xl bg-neutral-200/50" />
+      <div className="my-4 flex aspect-square w-full items-center justify-center rounded-2xl bg-neutral-50/80 border border-neutral-100 p-4">
+        <div className="w-3/4 h-3/4 rounded-2xl bg-neutral-200/50" />
       </div>
 
       {/* Product Information */}

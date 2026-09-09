@@ -81,14 +81,14 @@ export default function ListCart({ data }: { data: CartItems }) {
       <div className="flex items-center gap-4 w-full sm:w-auto">
         <Link
           href={`/shop/${data.product._id}`}
-          className="relative w-20 h-20 rounded-xl bg-white p-2 border border-neutral-200/60 flex-shrink-0 flex items-center justify-center"
+          className="relative w-20 h-20 aspect-square rounded-2xl bg-white p-2 border border-neutral-200/60 flex-shrink-0 flex items-center justify-center overflow-hidden"
         >
           <Image
             src={getImageUrl(data.product.image_thumbnail)}
             alt={data.product.name}
             width={80}
             height={80}
-            className="object-contain max-h-full"
+            className="object-contain max-h-full w-auto"
           />
         </Link>
         <div className="flex-1 min-w-0">

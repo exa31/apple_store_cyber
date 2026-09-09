@@ -475,7 +475,7 @@ export default function OrderInvoicePage({
                     <td className="py-4 px-3 align-top">
                       <div className="flex items-start gap-3">
                         {imageSrc && (
-                          <div className="w-10 h-10 rounded-xl bg-neutral-100 p-1 border border-neutral-200/80 shrink-0 hidden sm:block print:hidden">
+                          <div className="w-10 h-10 aspect-square rounded-xl bg-neutral-100 p-1 border border-neutral-200/80 shrink-0 hidden sm:flex items-center justify-center print:hidden">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={imageSrc}

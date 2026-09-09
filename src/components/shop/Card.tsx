@@ -149,14 +149,14 @@ export default function CardShop({
       {/* Product Image */}
       <Link
         href={`/shop/${product._id}`}
-        className="relative my-4 flex h-52 w-full items-center justify-center overflow-hidden rounded-2xl bg-neutral-50/60 p-4"
+        className="relative my-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl bg-neutral-50/60 p-4"
       >
         <Image
           src={getImageUrl(product.image_thumbnail)}
           alt={product.name}
-          width={320}
-          height={320}
-          sizes="(max-width: 768px) 100vw, 320px"
+          width={400}
+          height={400}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
         />
       </Link>

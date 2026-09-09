@@ -760,7 +760,7 @@ export default function OrderPaymentPage({
                     return (
                       <div key={idx} className="py-3 flex items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                          <div className="w-12 h-12 aspect-square rounded-xl bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 flex items-center justify-center p-1">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={finalImg}

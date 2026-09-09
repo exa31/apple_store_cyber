@@ -213,7 +213,7 @@ export default function Detail({ params: { products } }: { params: { products: s
                   <button
                     key={idx}
                     onClick={() => setIsActiveImage(img)}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-2xl p-2 bg-neutral-50 border transition-all duration-200 ${
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 aspect-square flex-shrink-0 rounded-2xl p-2 bg-neutral-50 border transition-all duration-200 ${
                       isSelected
                         ? "border-neutral-900 ring-2 ring-neutral-900/10 scale-105"
                         : "border-neutral-200/80 hover:border-neutral-400 opacity-70 hover:opacity-100"
@@ -233,7 +233,7 @@ export default function Detail({ params: { products } }: { params: { products: s
           )}
 
           {/* Large Active Preview Stage */}
-          <div className="relative flex-1 w-full h-[360px] sm:h-[480px] rounded-3xl bg-neutral-50 flex items-center justify-center p-8 border border-neutral-100">
+          <div className="relative flex-1 w-full aspect-square max-h-[480px] rounded-3xl bg-neutral-50 flex items-center justify-center p-8 border border-neutral-100">
             <Image
               src={getImageUrl(isActiveImage)}
               alt={product.name}

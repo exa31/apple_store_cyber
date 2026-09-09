@@ -27,10 +27,10 @@ export default function ListOrder({ data }: { data: any }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3 border-b border-neutral-100 last:border-0">
       <div className="flex items-center gap-3">
-        <div className="relative w-14 h-14 rounded-xl bg-neutral-50 p-1 border border-neutral-200/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
+        <div className="relative w-14 h-14 aspect-square rounded-xl bg-neutral-50 p-1 border border-neutral-200/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
           {image ? (
             <Image
-              className="object-contain max-h-full"
+              className="object-contain max-h-full w-auto"
               width={56}
               height={56}
               src={getImageUrl(image)}
